@@ -1,21 +1,21 @@
 import { StyleSheet } from 'react-native';
 
 export const cyberColors = {
-  primary: '#2563eb',
-  primaryForeground: '#ffffff',
-  secondary: '#f1f5f9',
-  secondaryForeground: '#0f172a',
-  background: '#ffffff',
-  foreground: '#0f172a',
-  muted: '#f8fafc',
-  mutedForeground: '#64748b',
-  border: '#e2e8f0',
-  input: '#ffffff',
-  destructive: '#ef4444',
+  primary: '#000000',              // Black accents
+  primaryForeground: '#ffffff',    // White text on black buttons
+  secondary: '#f5f5f5',            // Light gray for secondary backgrounds
+  secondaryForeground: '#000000',  // Black text on light gray
+  background: '#ffffff',           // Main background white
+  foreground: '#000000',           // Main text black
+  muted: '#f9f9f9',                // Very light gray
+  mutedForeground: '#555555',      // Medium gray for muted text
+  border: '#dcdcdc',               // Light gray border
+  input: '#ffffff',                // White input background
+  destructive: '#cc0000',          // Red for destructive actions
   destructiveForeground: '#ffffff',
   success: '#22c55e',
   warning: '#f59e0b',
-  danger: '#ef4444',
+  danger: '#cc0000',
 };
 
 export const cyberStyles = StyleSheet.create({
@@ -34,14 +34,13 @@ export const cyberStyles = StyleSheet.create({
     padding: 20,
     margin: 10,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: cyberColors.border,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
     shadowRadius: 3.84,
-    elevation: 5,
+    elevation: 2,
   },
   button: {
     backgroundColor: cyberColors.primary,
@@ -73,6 +72,7 @@ export const cyberStyles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 16,
     marginBottom: 16,
+    color: cyberColors.foreground,
   },
   title: {
     fontSize: 24,
@@ -118,10 +118,12 @@ export const cyberStyles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 16,
     alignSelf: 'flex-start',
+    backgroundColor: cyberColors.secondary,
   },
   badgeText: {
     fontSize: 12,
     fontWeight: '500',
+    color: cyberColors.secondaryForeground,
   },
   row: {
     flexDirection: 'row',

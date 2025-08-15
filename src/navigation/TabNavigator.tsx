@@ -1,8 +1,9 @@
 import React from 'react';
 import { Text, View, TouchableOpacity } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { OverviewScreen, ReportScreen, IncidentsScreen } from '../screens';
+import { OverviewScreen, ReportScreen, IncidentsScreen, LoginScreen } from '../screens';
 import { MainTabParamList, Incident, User } from '../types/navigation';
+import Ionicons from '@expo/vector-icons/build/Ionicons';
 
 const Tab = createMaterialTopTabNavigator<MainTabParamList>();
 
@@ -37,7 +38,7 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({
           <Text style={{ fontSize: 16, color: '#000' }}>Welcome, {user.name || 'John Doe'}</Text>
         </View>
         <TouchableOpacity>
-          <Text style={{ color: '#000', fontSize: 16 }}>Logout</Text>
+          <Ionicons name="log-out-outline" size={20} color="#000" />
         </TouchableOpacity>
       </View>
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View, TouchableOpacity } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { OverviewScreen, ReportScreen, IncidentsScreen, LoginScreen } from '../screens';
+import { OverviewScreen, ReportScreen, ReportTabScreen, IncidentsScreen, LoginScreen } from '../screens';
 import { MainTabParamList, Incident, User } from '../types/navigation';
 import Ionicons from '@expo/vector-icons/build/Ionicons';
 
@@ -78,10 +78,8 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({
           options={{ tabBarLabel: '+ Report' }}
         >
           {() => (
-            <ReportScreen
+            <ReportTabScreen
               onSubmit={onReportIncident}
-              visible={showReportModal}
-              onClose={() => setShowReportModal(false)}
             />
           )}
         </Tab.Screen>
@@ -98,6 +96,13 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({
           )}
         </Tab.Screen>
       </Tab.Navigator>
+      
+      {/* Modal for Overview screen's Report button */}
+      <ReportScreen
+        onSubmit={onReportIncident}
+        visible={showReportModal}
+        onClose={() => setShowReportModal(false)}
+      />
     </View>
   );
 };

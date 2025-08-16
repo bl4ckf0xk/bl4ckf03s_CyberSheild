@@ -156,37 +156,103 @@ export const patch = <T = any>(
   return makeRequest<T>(endpoint, { method: 'PATCH', body, headers });
 };
 
-// Example API endpoints - Replace with your actual API endpoints
+// API endpoints for CyberShield incident management
 export const apiEndpoints = {
+  auth: {
+    login: '/auth/login',
+    register: '/auth/register',
+    adminLogin: '/auth/admin/login',
+    logout: '/auth/logout',
+  },
+  incidents: {
+    list: '/incidents',
+    get: (id: string) => `/incidents/${id}`,
+    create: '/incidents',
+    update: (id: string) => `/incidents/${id}`,
+    delete: (id: string) => `/incidents/${id}`,
+    escalate: (id: string) => `/incidents/${id}/escalate`,
+  },
+  admin: {
+    incidents: {
+      list: '/admin/incidents',
+      get: (id: string) => `/admin/incidents/${id}`,
+      updateStatus: (id: string) => `/admin/incidents/${id}/status`,
+      forwardToLE: (id: string) => `/admin/incidents/${id}/forward-le`,
+      assign: (id: string) => `/admin/incidents/${id}/assign`,
+    },
+    lawEnforcement: {
+      list: '/admin/law-enforcement',
+      updateStatus: (id: string) => `/admin/law-enforcement/${id}/status`,
+      contact: '/admin/law-enforcement/contact',
+    },
+    analytics: {
+      dashboard: '/admin/analytics/dashboard',
+      reports: '/admin/analytics/reports',
+    },
+  },
   users: {
     list: '/users',
-    get: (id: number) => `/users/${id}`,
-    create: '/users',
-    update: (id: number) => `/users/${id}`,
-    delete: (id: number) => `/users/${id}`,
-  },
-  posts: {
-    list: '/posts',
-    get: (id: number) => `/posts/${id}`,
-    create: '/posts',
-    update: (id: number) => `/posts/${id}`,
-    delete: (id: number) => `/posts/${id}`,
+    get: (id: string) => `/users/${id}`,
+    profile: '/users/profile',
+    update: (id: string) => `/users/${id}`,
   },
 };
 
-// Example usage functions
-export const apiService = {
-  // User related API calls
-  getUsers: () => get(apiEndpoints.users.list),
-  getUser: (id: number) => get(apiEndpoints.users.get(id)),
-  createUser: (userData: any) => post(apiEndpoints.users.create, userData),
-  updateUser: (id: number, userData: any) => put(apiEndpoints.users.update(id), userData),
-  deleteUser: (id: number) => del(apiEndpoints.users.delete(id)),
+// CyberShield API service functions
+export const cyberShieldApi = {
+  // Authentication
+  auth: {
+    login: (credentials: { email: string; password: string }) => 
+      post(apiEndpoints.auth.login, credentials),
+    register: (userData: { name: string; email: string; password: string }) => 
+      post(apiEndpoints.auth.register, userData),
+    adminLogin: (credentials: { email: string; password: string; badgeNumber: string }) => 
+      post(apiEndpoints.auth.adminLogin, credentials),
+    logout: () => post(apiEndpoints.auth.logout),
+  },
 
-  // Post related API calls
-  getPosts: () => get(apiEndpoints.posts.list),
-  getPost: (id: number) => get(apiEndpoints.posts.get(id)),
-  createPost: (postData: any) => post(apiEndpoints.posts.create, postData),
-  updatePost: (id: number, postData: any) => put(apiEndpoints.posts.update(id), postData),
-  deletePost: (id: number) => del(apiEndpoints.posts.delete(id)),
+  // Incidents (User)
+  incidents: {
+    list: () => get(apiEndpoints.incidents.list),
+    get: (id: string) => get(apiEndpoints.incidents.get(id)),
+    create: (incidentData: any) => post(apiEndpoints.incidents.create, incidentData),
+    update: (id: string, incidentData: any) => put(apiEndpoints.incidents.update(id), incidentData),
+    escalate: (id: string) => post(apiEndpoints.incidents.escalate(id)),
+  },
+
+  // Admin functions
+  admin: {
+    incidents: {
+      list: () => get(apiEndpoints.admin.incidents.list),
+      get: (id: string) => get(apiEndpoints.admin.incidents.get(id)),
+      updateStatus: (id: string, status: string, adminNotes?: string) => 
+        put(apiEndpoints.admin.incidents.updateStatus(id), { status, adminNotes }),
+      forwardToLE: (id: string, lawEnforcementRef: string) => 
+        post(apiEndpoints.admin.incidents.forwardToLE(id), { lawEnforcementRef }),
+      assign: (id: string, adminId: string) => 
+        put(apiEndpoints.admin.incidents.assign(id), { adminId }),
+    },
+    lawEnforcement: {
+      list: () => get(apiEndpoints.admin.lawEnforcement.list),
+      updateStatus: (id: string, status: string) => 
+        put(apiEndpoints.admin.lawEnforcement.updateStatus(id), { status }),
+      contact: (contactInfo: any) => post(apiEndpoints.admin.lawEnforcement.contact, contactInfo),
+    },
+    analytics: {
+      dashboard: () => get(apiEndpoints.admin.analytics.dashboard),
+      reports: (dateRange?: { startDate: string; endDate: string }) => 
+        get(apiEndpoints.admin.analytics.reports + (dateRange ? `?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}` : '')),
+    },
+  },
+
+  // Users
+  users: {
+    getProfile: () => get(apiEndpoints.users.profile),
+    updateProfile: (userData: any) => put(apiEndpoints.users.profile, userData),
+    list: () => get(apiEndpoints.users.list),
+    get: (id: string) => get(apiEndpoints.users.get(id)),
+  },
 };
+
+// Export the main API service
+export const apiService = cyberShieldApi;

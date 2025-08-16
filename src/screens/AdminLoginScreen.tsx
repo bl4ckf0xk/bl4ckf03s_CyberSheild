@@ -12,18 +12,18 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { cyberStyles, cyberColors } from '../styles/cybershield';
 
-interface LoginScreenProps {
-  onLogin: (email: string, password: string) => void;
-  onSwitchToRegister: () => void;
-  onSwitchToAdminLogin: () => void;
+interface AdminLoginScreenProps {
+  onLogin: (email: string, password: string, badgeNumber: string) => void;
+  onSwitchToUserLogin: () => void;
 }
 
-export function LoginScreen({ onLogin, onSwitchToRegister, onSwitchToAdminLogin }: LoginScreenProps) {
+export function AdminLoginScreen({ onLogin, onSwitchToUserLogin }: AdminLoginScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [badgeNumber, setBadgeNumber] = useState('');
 
   const handleLogin = () => {
-    if (!email || !password) {
+    if (!email || !password || !badgeNumber) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -33,7 +33,7 @@ export function LoginScreen({ onLogin, onSwitchToRegister, onSwitchToAdminLogin 
       return;
     }
 
-    onLogin(email, password);
+    onLogin(email, password, badgeNumber);
   };
 
   return (
@@ -44,17 +44,17 @@ export function LoginScreen({ onLogin, onSwitchToRegister, onSwitchToAdminLogin 
       <ScrollView contentContainerStyle={cyberStyles.centerContainer}>
         <View style={cyberStyles.card}>
           <View style={[cyberStyles.row, { justifyContent: 'center', marginBottom: 20 }]}>
-            <Ionicons name="shield-checkmark" size={32} color={cyberColors.primary} />
+            <Ionicons name="shield-checkmark" size={32} color={cyberColors.danger} />
           </View>
           
-          <Text style={cyberStyles.title}>CyberShield</Text>
+          <Text style={cyberStyles.title}>CyberShield Admin</Text>
           <Text style={cyberStyles.subtitle}>
-            Sign in to access the cybercrime incident reporting system
+            Administrator access to incident management system
           </Text>
 
           <TextInput
             style={cyberStyles.input}
-            placeholder="Email address"
+            placeholder="Admin email address"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -71,24 +71,23 @@ export function LoginScreen({ onLogin, onSwitchToRegister, onSwitchToAdminLogin 
             autoCapitalize="none"
           />
 
-          <TouchableOpacity style={cyberStyles.button} onPress={handleLogin}>
-            <Text style={cyberStyles.buttonText}>Sign In</Text>
+          <TextInput
+            style={cyberStyles.input}
+            placeholder="Badge Number"
+            value={badgeNumber}
+            onChangeText={setBadgeNumber}
+            autoCapitalize="none"
+          />
+
+          <TouchableOpacity style={[cyberStyles.button, { backgroundColor: cyberColors.danger }]} onPress={handleLogin}>
+            <Text style={cyberStyles.buttonText}>Admin Sign In</Text>
           </TouchableOpacity>
 
           <View style={[cyberStyles.row, { justifyContent: 'center', marginTop: 20 }]}>
-            <Text style={cyberStyles.textSmall}>Don't have an account? </Text>
-            <TouchableOpacity onPress={onSwitchToRegister}>
+            <Text style={cyberStyles.textSmall}>Not an admin? </Text>
+            <TouchableOpacity onPress={onSwitchToUserLogin}>
               <Text style={[cyberStyles.textSmall, { color: cyberColors.primary, fontWeight: '600' }]}>
-                Create one
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={[cyberStyles.row, { justifyContent: 'center', marginTop: 12 }]}>
-            <Text style={cyberStyles.textSmall}>Administrator? </Text>
-            <TouchableOpacity onPress={onSwitchToAdminLogin}>
-              <Text style={[cyberStyles.textSmall, { color: cyberColors.danger, fontWeight: '600' }]}>
-                Admin Login
+                User Login
               </Text>
             </TouchableOpacity>
           </View>

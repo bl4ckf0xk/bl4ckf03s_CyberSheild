@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, TouchableOpacity } from 'react-native';
+import { Text, View, TouchableOpacity, Alert } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { OverviewScreen, ReportScreen, ReportTabScreen, IncidentsScreen, LoginScreen } from '../screens';
 import { MainTabParamList, Incident, User } from '../types/navigation';
@@ -10,6 +10,7 @@ const Tab = createMaterialTopTabNavigator<MainTabParamList>();
 interface TabNavigatorProps {
   user: User;
   incidents: Incident[];
+  onLogout: () => void;
   onReportIncident: (incident: Omit<Incident, 'id' | 'userId' | 'reportedAt' | 'status'>) => void;
   onEscalateIncident: (incidentId: string) => void;
   showReportModal: boolean;
@@ -19,11 +20,31 @@ interface TabNavigatorProps {
 const TabNavigator: React.FC<TabNavigatorProps> = ({
   user,
   incidents,
+  onLogout,
   onReportIncident,
   onEscalateIncident,
   showReportModal,
   setShowReportModal,
 }) => {
+  const handleLogoutPress = () => {
+    Alert.alert(
+      'Confirm Logout',
+      'Are you sure you want to sign out?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: onLogout,
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       {/* Top Bar */}
@@ -37,7 +58,7 @@ const TabNavigator: React.FC<TabNavigatorProps> = ({
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Text style={{ fontSize: 16, color: '#000' }}>Welcome, {user.name || 'John Doe'}</Text>
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleLogoutPress}>
           <Ionicons name="log-out-outline" size={20} color="#000" />
         </TouchableOpacity>
       </View>

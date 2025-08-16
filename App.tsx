@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { RootNavigator } from './src/navigation';
 import { storage } from './src/utils/storage';
-import { User, Incident } from './src/types/navigation';
+import { User, Incident, AdminUser } from './src/types/navigation';
 import { Loading } from './src/components';
 
 export default function App() {
@@ -44,10 +44,11 @@ export default function App() {
   const handleLogin = async (email: string, password: string) => {
     try {
       // Mock login - in real app this would validate against backend
-      const mockUser = {
+      const mockUser: User = {
         id: '1',
         email,
-        name: email.split('@')[0]
+        name: email.split('@')[0],
+        role: 'user'
       };
       setUser(mockUser);
       await storage.setItem('cyberShieldUser', JSON.stringify(mockUser));
@@ -57,13 +58,39 @@ export default function App() {
     }
   };
 
+  const handleAdminLogin = async (email: string, password: string, badgeNumber: string) => {
+    try {
+      // Mock admin login - in real app this would validate against backend
+      // For demo purposes, any email with 'admin' will be treated as admin
+      if (!email.toLowerCase().includes('admin')) {
+        Alert.alert('Error', 'Invalid admin credentials');
+        return;
+      }
+      
+      const mockAdminUser: AdminUser = {
+        id: 'admin_' + Date.now().toString(),
+        email,
+        name: email.split('@')[0],
+        role: 'admin',
+        badgeNumber,
+        department: 'Cybercrime Unit'
+      };
+      setUser(mockAdminUser);
+      await storage.setItem('cyberShieldUser', JSON.stringify(mockAdminUser));
+    } catch (error) {
+      console.error('Error during admin login:', error);
+      Alert.alert('Error', 'Failed to sign in as admin. Please try again.');
+    }
+  };
+
   const handleRegister = async (name: string, email: string, password: string) => {
     try {
       // Mock registration - in real app this would create account in backend
-      const mockUser = {
+      const mockUser: User = {
         id: Date.now().toString(),
         email,
-        name
+        name,
+        role: 'user'
       };
       setUser(mockUser);
       await storage.setItem('cyberShieldUser', JSON.stringify(mockUser));
@@ -123,6 +150,94 @@ export default function App() {
     }
   };
 
+  // Admin-specific functions
+  const handleUpdateIncidentStatus = async (incidentId: string, status: string, adminNotes?: string) => {
+    if (!user || user.role !== 'admin') return;
+    
+    try {
+      const updatedIncidents = incidents.map(incident =>
+        incident.id === incidentId
+          ? { 
+              ...incident, 
+              status: status as any,
+              adminNotes: adminNotes || incident.adminNotes,
+              lastUpdatedBy: user.name,
+              lastUpdatedAt: new Date()
+            }
+          : incident
+      );
+      setIncidents(updatedIncidents);
+      await storage.setItem('cyberShieldIncidents', JSON.stringify(updatedIncidents));
+      
+      Alert.alert('Success', `Incident status updated to ${status.replace('_', ' ')}`);
+    } catch (error) {
+      console.error('Error updating incident status:', error);
+      Alert.alert('Error', 'Failed to update incident status. Please try again.');
+    }
+  };
+
+  const handleForwardToLawEnforcement = async (incidentId: string, lawEnforcementRef: string) => {
+    if (!user || user.role !== 'admin') return;
+    
+    try {
+      const updatedIncidents = incidents.map(incident =>
+        incident.id === incidentId
+          ? { 
+              ...incident, 
+              status: 'forwarded_to_le' as const,
+              lawEnforcementRef,
+              forwardedAt: new Date(),
+              lastUpdatedBy: user.name,
+              lastUpdatedAt: new Date()
+            }
+          : incident
+      );
+      setIncidents(updatedIncidents);
+      await storage.setItem('cyberShieldIncidents', JSON.stringify(updatedIncidents));
+      
+      Alert.alert('Success', `Incident forwarded to law enforcement with reference: ${lawEnforcementRef}`);
+    } catch (error) {
+      console.error('Error forwarding to law enforcement:', error);
+      Alert.alert('Error', 'Failed to forward incident. Please try again.');
+    }
+  };
+
+  const handleViewIncidentDetail = (incidentId: string) => {
+    // In a real app, this would navigate to a detailed view
+    const incident = incidents.find(i => i.id === incidentId);
+    if (incident) {
+      Alert.alert(
+        incident.title,
+        `Description: ${incident.description}\nCategory: ${incident.category}\nSeverity: ${incident.severity}\nStatus: ${incident.status}\nReported: ${incident.reportedAt.toLocaleString()}`,
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  const handleUpdateLEStatus = async (incidentId: string, status: string) => {
+    if (!user || user.role !== 'admin') return;
+    
+    try {
+      const updatedIncidents = incidents.map(incident =>
+        incident.id === incidentId
+          ? { 
+              ...incident, 
+              status: status as any,
+              lastUpdatedBy: user.name,
+              lastUpdatedAt: new Date()
+            }
+          : incident
+      );
+      setIncidents(updatedIncidents);
+      await storage.setItem('cyberShieldIncidents', JSON.stringify(updatedIncidents));
+      
+      Alert.alert('Success', `Law enforcement status updated to ${status.replace('_', ' ')}`);
+    } catch (error) {
+      console.error('Error updating LE status:', error);
+      Alert.alert('Error', 'Failed to update law enforcement status. Please try again.');
+    }
+  };
+
   if (isLoading) {
     return (
       <SafeAreaProvider>
@@ -139,8 +254,14 @@ export default function App() {
         incidents={incidents}
         onLogin={handleLogin}
         onRegister={handleRegister}
+        onAdminLogin={handleAdminLogin}
+        onLogout={handleLogout}
         onReportIncident={handleReportIncident}
         onEscalateIncident={handleEscalateIncident}
+        onUpdateIncidentStatus={handleUpdateIncidentStatus}
+        onForwardToLawEnforcement={handleForwardToLawEnforcement}
+        onViewIncidentDetail={handleViewIncidentDetail}
+        onUpdateLEStatus={handleUpdateLEStatus}
         showReportModal={showReportModal}
         setShowReportModal={setShowReportModal}
       />

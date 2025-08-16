@@ -55,7 +55,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
   const originalEnd = res.end;
 
   // Override res.end to log response
-  res.end = function(chunk?: any, encoding?: any): void {
+  res.end = function(chunk?: any, encoding?: any): Response {
     const responseTime = Date.now() - req.startTime;
     
     const responseInfo = {
@@ -78,7 +78,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
     }
 
     // Call the original end method
-    originalEnd.call(this, chunk, encoding);
+    return originalEnd.call(this, chunk, encoding);
   };
 
   next();
@@ -192,7 +192,7 @@ export const requestLoggerWithStats = (req: Request, res: Response, next: NextFu
   const originalEnd = res.end;
 
   // Override res.end to log response and track stats
-  res.end = function(chunk?: any, encoding?: any): void {
+  res.end = function(chunk?: any, encoding?: any): Response {
     const responseTime = Date.now() - req.startTime;
     
     // Track API statistics
@@ -226,7 +226,7 @@ export const requestLoggerWithStats = (req: Request, res: Response, next: NextFu
     }
 
     // Call the original end method
-    originalEnd.call(this, chunk, encoding);
+    return originalEnd.call(this, chunk, encoding);
   };
 
   next();

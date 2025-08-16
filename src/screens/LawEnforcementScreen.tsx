@@ -57,6 +57,67 @@ export function LawEnforcementScreen({
     }
   };
 
+  // Helper function to safely format dates
+  const formatDate = (dateValue: any): string => {
+    if (!dateValue) return 'Date not available';
+    
+    try {
+      // If it's already a Date object
+      if (dateValue instanceof Date) {
+        return dateValue.toLocaleDateString();
+      }
+      
+      // If it's a string, try to parse it
+      if (typeof dateValue === 'string') {
+        const parsedDate = new Date(dateValue);
+        if (!isNaN(parsedDate.getTime())) {
+          return parsedDate.toLocaleDateString();
+        }
+      }
+      
+      // If it's a number (timestamp), create Date from it
+      if (typeof dateValue === 'number') {
+        const dateFromTimestamp = new Date(dateValue);
+        if (!isNaN(dateFromTimestamp.getTime())) {
+          return dateFromTimestamp.toLocaleDateString();
+        }
+      }
+      
+      return 'Invalid date';
+    } catch (error) {
+      return 'Date not available';
+    }
+  };
+
+  // Helper function to safely get timestamp for sorting
+  const getTimestamp = (dateValue: any): number => {
+    if (!dateValue) return 0;
+    
+    try {
+      // If it's already a Date object
+      if (dateValue instanceof Date) {
+        return dateValue.getTime();
+      }
+      
+      // If it's a string, try to parse it
+      if (typeof dateValue === 'string') {
+        const parsedDate = new Date(dateValue);
+        if (!isNaN(parsedDate.getTime())) {
+          return parsedDate.getTime();
+        }
+      }
+      
+      // If it's a number (timestamp), return it directly
+      if (typeof dateValue === 'number') {
+        return dateValue;
+      }
+      
+      return 0;
+    } catch (error) {
+      return 0;
+    }
+  };
+
   const ForwardedIncidentCard = ({ incident }: { incident: Incident }) => {
     const severityColors = getSeverityColor(incident.severity);
 
@@ -81,7 +142,7 @@ export function LawEnforcementScreen({
         <View style={[cyberStyles.row, cyberStyles.spaceBetween, cyberStyles.mb2]}>
           <Text style={cyberStyles.textSmall}>{incident.category}</Text>
           <Text style={cyberStyles.textSmall}>
-            Reported: {incident.reportedAt.toLocaleDateString()}
+            Reported: {formatDate(incident.reportedAt)}
           </Text>
         </View>
 
@@ -96,7 +157,7 @@ export function LawEnforcementScreen({
 
         {incident.forwardedAt && (
           <Text style={[cyberStyles.textSmall, cyberStyles.mb2]}>
-            Forwarded: {incident.forwardedAt.toLocaleDateString()}
+            Forwarded: {formatDate(incident.forwardedAt)}
           </Text>
         )}
 
@@ -190,7 +251,7 @@ export function LawEnforcementScreen({
                 return bSeverity - aSeverity;
               }
               
-              return (b.forwardedAt?.getTime() || 0) - (a.forwardedAt?.getTime() || 0);
+              return getTimestamp(b.forwardedAt) - getTimestamp(a.forwardedAt);
             })
             .map((incident) => (
               <ForwardedIncidentCard key={incident.id} incident={incident} />

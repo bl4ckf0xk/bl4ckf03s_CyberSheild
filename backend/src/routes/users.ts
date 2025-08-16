@@ -1,72 +1,116 @@
+// src/routes/userRoutes.ts
 import { Router, Request, Response } from 'express';
 import { logger } from '../utils/logger';
+import { createClient } from '@supabase/supabase-js';
 
 const router = Router();
 
-// GET /api/users/profile
+// Supabase client
+const supabase = createClient(
+  process.env.SUPABASE_URL as string,
+  process.env.SUPABASE_SERVICE_KEY as string // backend service key
+);
+
+
+// POST /api/users → add a new user
+router.post('/add-user', async (req: Request, res: Response) => {
+  try {
+    const newUser = req.body;
+
+    const { data, error } = await supabase
+      .from('users')
+      .insert(newUser)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    logger.info(`New user created: ${data.id}`);
+    return res.status(201).json({ success: true, data });
+  }catch (error: any) {
+    logger.error('Error creating user:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error', error });
+  }
+});
+
+// GET /api/users/profile/:id
 router.get('/profile', async (req: Request, res: Response) => {
   try {
-    // TODO: Implement actual user profile fetching logic
-    logger.info('User profile requested');
-    
-    res.status(200).json({
-      success: true,
-      data: {
-        user: {
-          id: 'temp-user-id',
-          email: 'user@example.com',
-          name: 'Sample User'
-        }
-      }
-    });
-  } catch (error) {
-    logger.error('Error fetching user profile:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+    if (error) throw error;
+
+    logger.info(`Profile fetched for users`);
+    return res.status(200).json({ success: true, data });
+  } catch (error: any) {
+    logger.error('Error fetching user profile:', error.message);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
-// PUT /api/users/profile
-router.put('/profile', async (req: Request, res: Response) => {
+
+// GET /api/users/profile/:id
+router.get('/profile/:id', async (req: Request, res: Response) => {
   try {
+    const userId = req.params.id;
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error) throw error;
+
+    logger.info(`Profile fetched for user ${userId}`);
+    return res.status(200).json({ success: true, data });
+  } catch (error: any) {
+    logger.error('Error fetching user profile:', error.message);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// PUT /api/users/profile/:id
+router.put('/profile/:id', async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
     const updateData = req.body;
-    
-    // TODO: Implement actual user profile update logic
-    logger.info('User profile update requested');
-    
-    res.status(200).json({
-      success: true,
-      message: 'Profile updated successfully'
-    });
-  } catch (error) {
-    logger.error('Error updating user profile:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
+
+    const { data, error } = await supabase
+      .from('users')
+      .update(updateData)
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    logger.info(`Profile updated for user ${userId}`);
+    return res.status(200).json({ success: true, data });
+  } catch (error: any) {
+    logger.error('Error updating user profile:', error.message);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
-// GET /api/users/incidents
-router.get('/incidents', async (req: Request, res: Response) => {
+// GET /api/users/:id/incidents
+router.get('/:id/incidents', async (req: Request, res: Response) => {
   try {
-    // TODO: Implement actual user incidents fetching logic
-    logger.info('User incidents requested');
-    
-    res.status(200).json({
-      success: true,
-      data: {
-        incidents: []
-      }
-    });
-  } catch (error) {
-    logger.error('Error fetching user incidents:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
+    const userId = req.params.id;
+
+    const { data, error } = await supabase
+      .from('incidents')
+      .select('*')
+      .eq('reported_by', userId);
+
+    if (error) throw error;
+
+    logger.info(`Incidents fetched for user ${userId}`);
+    return res.status(200).json({ success: true, data });
+  } catch (error: any) {
+    logger.error('Error fetching user incidents:', error.message);
+    return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 

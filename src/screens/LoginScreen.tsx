@@ -79,7 +79,7 @@ export function LoginScreen({ onLogin, onSwitchToRegister, onSwitchToAdminLogin 
             <Text style={cyberStyles.textSmall}>Don't have an account? </Text>
             <TouchableOpacity onPress={onSwitchToRegister}>
               <Text style={[cyberStyles.textSmall, { color: cyberColors.primary, fontWeight: '600' }]}>
-                Create one
+                Sign Up
               </Text>
             </TouchableOpacity>
           </View>
